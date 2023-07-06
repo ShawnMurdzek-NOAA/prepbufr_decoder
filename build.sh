@@ -16,11 +16,11 @@ case ${machine} in
 esac
 
 # Build programs
-names=(prepbufr_decode_csv.f90 prepbufr_encode_csv.f90)
+names=(prepbufr_decode_csv prepbufr_encode_csv)
 error=0
 for n in ${names[@]}; do
   echo "program = ${n}"
-  ifort ./src/${n} -o ./bin/${n}.x -L${bufr_ROOT}/lib64 -lbufr_d
+  ifort ./src/${n}.f90 -o ./bin/${n}.x -L${bufr_ROOT}/lib64 -lbufr_d
   tmp=$?
   if [ ${tmp} -gt ${error} ]; then
     error=${tmp}

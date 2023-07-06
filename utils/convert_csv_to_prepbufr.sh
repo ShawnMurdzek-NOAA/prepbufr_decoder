@@ -18,7 +18,7 @@ env_dir='../env'
 
 # First and last BUFR times (YYYYMMDDHH)
 first=2022020100
-last=2022020114
+last=2022020112
 
 # Directory containing CSV files
 csv_dir='/work2/noaa/wrfruc/murdzek/nature_run_winter/synthetic_obs_csv/perfect_conv/data'
@@ -40,6 +40,7 @@ case ${machine} in
 esac
 
 cd ${bin_dir}
+pwd
 
 current=${first}
 while [ ${current} -le ${last} ]; do
@@ -49,10 +50,10 @@ while [ ${current} -le ${last} ]; do
 
   for tag in ${all_tags[@]}; do 
     if [ -e ${csv_dir}/${current}00.${tag}.${ob_type}.prepbufr.csv ]; then 
-      cp ${csv_dir}/${current}00.${tag}.${ob_type}.prepbufr.csv ${bin_dir}/prepbufr.csv
-      ${bin_dir}/prepbufr_encode_csv.x
-      mv ${bin_dir}/prepbufr ${prepbufr_dir}/${current}.${tag}.t${hr}z.prepbufr.tm00
-      rm ${bin_dir}/prepbufr.csv
+      cp ${csv_dir}/${current}00.${tag}.${ob_type}.prepbufr.csv ./prepbufr.csv
+      ./prepbufr_encode_csv.x
+      mv ./prepbufr ${prepbufr_dir}/${current}.${tag}.t${hr}z.prepbufr.tm00
+      rm ./prepbufr.csv
     fi
   done
 

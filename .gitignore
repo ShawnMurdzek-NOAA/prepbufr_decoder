@@ -1,0 +1,6 @@
+
+# Slurm output files
+slurm*
+
+# Swp files
+*.swp
