@@ -1,0 +1,6 @@
+
+# Executables
+*.x
+
+# CSVs
+*.csv

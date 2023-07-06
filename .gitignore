@@ -1,7 +1,0 @@
-
-# Executables
-*.x
-
-# prepbufr files and CSVs
-*.csv
-prepbufr
