@@ -14,7 +14,7 @@ Building the prepBUFR decoder and encoder requires the BUFR library. For support
 
 `bash build.sh <MACHINE>`
 
-The following machines ar currently supported:
+The following machines are currently supported:
 
 - ORION
 
