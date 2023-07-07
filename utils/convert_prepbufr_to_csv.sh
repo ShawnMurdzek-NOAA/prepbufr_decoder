@@ -17,8 +17,8 @@ bin_dir='../bin'
 env_dir='../env'
 
 # First and last BUFR times (YYYYMMDDHH)
-first=2022020100
-last=2022020200
+first=2022020200
+last=2022020300
 
 # Directory containing prepbufr files
 prepbufr_dir='/work2/noaa/wrfruc/murdzek/real_obs/obs_rap_prepbufr'
@@ -47,10 +47,10 @@ if ${specify_filenames}; then
 
   for i in ${!in_files[@]}; do
     echo "creating CSV file for ${in_files[i]}"
-    cp ${prepbufr_dir}/${in_files[i]} ${bin_dir}/prepbufr
-    ${bin_dir}/prepbufr_decode_csv.x
-    mv ${bin_dir}/prepbufr.csv ${csv_dir}/${out_files[i]}
-    rm ${bin_dir}/prepbufr
+    cp ${prepbufr_dir}/${in_files[i]} ./prepbufr
+    ./prepbufr_decode_csv.x
+    mv ./prepbufr.csv ${csv_dir}/${out_files[i]}
+    rm ./prepbufr
   done
 
 else
@@ -63,10 +63,10 @@ else
 
     for tag in ${all_tags[@]}; do 
       if [ -e ${prepbufr_dir}/${current}.${tag}.t${hr}z.prepbufr.tm00 ]; then 
-        cp ${prepbufr_dir}/${current}.${tag}.t${hr}z.prepbufr.tm00 ${bin_dir}/prepbufr
-        ${bin_dir}/prepbufr_decode_csv.x
-        mv ${bin_dir}/prepbufr.csv ${csv_dir}/${current}00.${tag}.prepbufr.csv
-        rm ${bin_dir}/prepbufr
+        cp ${prepbufr_dir}/${current}.${tag}.t${hr}z.prepbufr.tm00 ./prepbufr
+        ./prepbufr_decode_csv.x
+        mv ./prepbufr.csv ${csv_dir}/${current}00.${tag}.prepbufr.csv
+        rm ./prepbufr
       fi
     done
 
