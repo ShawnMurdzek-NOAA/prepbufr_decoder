@@ -3,7 +3,7 @@
 # Script to build the PrepBUFR decoder and encoder
 
 # Passed arguments: 
-#     1 - Machine (options = ORION)
+#     1 - Machine (options = ORION, JET)
 
 machine=$1
 echo "machine: ${machine}"
@@ -13,6 +13,15 @@ echo
 case ${machine} in
 "ORION")
   source ./env/bufr_orion.env
+  bufr_lib=bufr_d   # bufr from hpc-stack
+;;
+"JET")
+  source ./env/bufr_jet.env
+  bufr_lib=bufr_4   # bufr/12.0.0 (in spack-stack v1.5.0)
+;;
+"")
+  echo "no machine specified. Compilation will fail if environment is not already configured"
+  echo
 esac
 
 # Build programs
@@ -20,7 +29,7 @@ names=(prepbufr_decode_csv prepbufr_encode_csv)
 error=0
 for n in ${names[@]}; do
   echo "program = ${n}"
-  ifort ./src/${n}.f90 -o ./bin/${n}.x -L${bufr_ROOT}/lib64 -lbufr_d
+  ifort ./src/${n}.f90 -o ./bin/${n}.x -L${bufr_ROOT}/lib64 -l${bufr_lib}
   tmp=$?
   if [ ${tmp} -gt ${error} ]; then
     error=${tmp}

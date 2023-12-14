@@ -16,7 +16,8 @@ Building the prepBUFR decoder and encoder requires the BUFR library. For support
 
 The following machines are currently supported:
 
-- ORION
+- ORION (hpc-stack v1.1.0)
+- JET (spack-stack v1.5.0)
 
 To add a new machine, add an environment configuration file to the `env` directory and add the machine and environment configuration file combination to the case block in build.sh.
 
