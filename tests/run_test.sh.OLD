@@ -1,0 +1,181 @@
+
+# Bash script to run the tests for prepbufr_decoder
+
+# Why run prepbufr_decode_csv/prepbufr_encode_csv so many times? The goal is to
+# compare BUFR CSVs to one another. Unfortunately, the message numbering gets
+# changed by the program, so the first and second CSVs will differ. Thus, we
+# must compare the second and third CSVs
+
+################################################################################
+# User-specified options
+################################################################################
+
+# Machine (can only those machines supported by prepbufr_decoder)
+machine='JET'
+
+# Inputs
+bufr_in='./data/2023121312.rap_e.t12z.prepbufr.tm00'
+diag_fmt='./data/diag_conv_%s_ges.2023121312.nc4'
+
+# Location of bin directory
+binDIR="`pwd`/../bin"
+envDIR="`pwd`/../env"
+
+# Option to delete temporary test directory after testing
+clean=0
+
+################################################################################
+# Run Test
+################################################################################
+
+# First, check to make sure executables exist
+echo "bin directory: ${binDIR}"
+if [ -f ${binDIR}/prepbufr_decode_csv.x ] && [ -f ${binDIR}/prepbufr_encode_csv.x ]; then
+  echo "Executables found!"
+else
+  echo "Executables do not exist. Please compile prepbufr_decoder using ../build.sh and try again"
+  exit 1
+fi
+
+# Configure environment
+source ${envDIR}/bufr_${machine,,}.env
+case ${machine} in
+"ORION")
+  echo "Python testing environment not yet configured. Exiting..."
+  exit 1
+;;
+"JET")
+  module use -a /contrib/miniconda3/modulefiles
+  module load miniconda3
+  conda activate adb_graphics
+  export PYTHONPATH=$PYTHONPATH:/mnt/lfs4/BMC/wrfruc/murdzek/src
+esac
+
+# Setup temporary testing directory
+if [ -d ./tmp ]; then
+  rm ./tmp/*
+else
+  mkdir tmp
+fi
+cp ${binDIR}/* ./tmp/
+cp ${bufr_in} ./tmp/prepbufr
+cp *.py ./tmp/
+cd tmp
+
+# Run prepbufr_decode_csv and prepbufr_encode_csv 3 times
+suffix=(".ORIGINAL" ".INTERMEDIATE" "")
+for i in ${!suffix[@]}; do
+
+  echo
+  echo "Running prepbufr_decode_csv (${i})..."
+  ./prepbufr_decode_csv.x > prepbufr_decode_${i}.log
+  err=$?
+  if [ ${err} -ne 0 ]; then
+    echo "error ${err} when running prepbufr_decode_csv.x (${i})"
+    exit 2
+  else
+    echo "prepbufr_decode_csv.x completed successfully (${i})"
+  fi 
+
+  cp prepbufr prepbufr${suffix[i]}
+  python open_close_csv.py prepbufr.csv
+  echo
+  echo "Running prepbufr_encode_csv (${i})..."
+  ./prepbufr_encode_csv.x > prepbufr_encode_${i}.log
+  err=$?
+  if [ ${err} -ne 0 ]; then
+    echo "error ${err} when running prepbufr_encode_csv.x (${i})"
+    exit 3
+  else
+    echo "prepbufr_encode_csv.x completed successfully (${i})"
+  fi 
+  cp prepbufr.csv prepbufr${suffix[i]}.csv
+  
+done
+
+# Run prepbufr_decode_csv
+echo
+echo "Running prepbufr_decode_csv..."
+./prepbufr_decode_csv.x > prepbufr_decode_1.log
+err=$?
+if [ ${err} -ne 0 ]; then
+  echo "error ${err} when running prepbufr_decode_csv.x"
+  exit 2
+else
+  echo "prepbufr_decode_csv.x completed successfully"
+fi 
+
+# Run prepbufr_encode_csv
+cp prepbufr prepbufr.ORIGINAL
+python open_close_csv.py prepbufr.csv
+echo
+echo "Running prepbufr_encode_csv..."
+./prepbufr_encode_csv.x > prepbufr_encode_1.log
+err=$?
+if [ ${err} -ne 0 ]; then
+  echo "error ${err} when running prepbufr_encode_csv.x"
+  exit 3
+else
+  echo "prepbufr_encode_csv.x completed successfully"
+fi 
+
+# Run prepbufr_decode_csv (second time)
+cp prepbufr.csv prepbufr.csv.ORIGINAL
+echo
+echo "Running prepbufr_decode_csv (second time)..."
+./prepbufr_decode_csv.x > prepbufr_decode_2.log
+err=$?
+if [ ${err} -ne 0 ]; then
+  echo "error ${err} when running prepbufr_decode_csv.x (second time)"
+  exit 4
+else
+  echo "prepbufr_decode_csv.x completed successfully (second time)"
+fi 
+
+# Run prepbufr_encode_csv (second time)
+cp prepbufr prepbufr.INTERMEDIATE
+python open_close_csv.py prepbufr.csv
+echo
+echo "Running prepbufr_encode_csv (second time)..."
+./prepbufr_encode_csv.x > prepbufr_encode_2.log
+err=$?
+if [ ${err} -ne 0 ]; then
+  echo "error ${err} when running prepbufr_encode_csv.x (second time)"
+  exit 5
+else
+  echo "prepbufr_encode_csv.x completed successfully (second time)"
+fi 
+
+# Run prepbufr_decode_csv (third time)
+cp prepbufr.csv prepbufr.csv.INTERMEDIATE
+echo
+echo "Running prepbufr_decode_csv (third time)..."
+./prepbufr_decode_csv.x > prepbufr_decode_3.log
+err=$?
+if [ ${err} -ne 0 ]; then
+  echo "error ${err} when running prepbufr_decode_csv.x (third time)"
+  exit 6
+else
+  echo "prepbufr_decode_csv.x completed successfully (third time)"
+fi
+ 
+# Compare prepbufr.csv files
+# This test checks whether the any data is changed during the prepbufr_decode/prepbufr_encode 
+# process. Success suggests that prepbufr_encode_csv is working properly. Another test is needed,
+# however, to check that prepbufr_decode_csv is working properly
+python open_close_csv.py prepbufr.csv
+diff_lines=`diff prepbufr.csv prepbufr.csv.INTERMEDIATE | wc -l`
+if [ ${diff_lines} -ne 0 ]; then
+  echo "error: ${diff_lines} lines differ between prepbufr.csv and prepbufr.csv.INTERMEDIATE"
+  exit 7
+else
+  echo "prepbufr CSV files are the same!"
+fi
+
+# Clean up
+echo
+echo "test completed successfully!!"
+cd ..
+if [ ${clean} -eq 1 ]; then
+  rm -r ./tmp
+fi

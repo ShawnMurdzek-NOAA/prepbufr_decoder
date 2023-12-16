@@ -4,3 +4,6 @@ slurm*
 
 # Swp files
 *.swp
+
+# Temporary directories
+tests/tmp/
