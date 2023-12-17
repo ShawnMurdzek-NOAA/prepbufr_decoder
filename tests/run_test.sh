@@ -62,36 +62,71 @@ cp ${bufr_in} ./tmp/prepbufr
 cp *.py ./tmp/
 cd tmp
 
-# Run prepbufr_decode_csv and prepbufr_encode_csv 3 times
-suffix=(".ORIGINAL" ".INTERMEDIATE" "")
-for i in ${!suffix[@]}; do
+# Run prepbufr_decode_csv
+echo
+echo "Running prepbufr_decode_csv..."
+./prepbufr_decode_csv.x > prepbufr_decode_1.log
+err=$?
+if [ ${err} -ne 0 ]; then
+  echo "error ${err} when running prepbufr_decode_csv.x"
+  exit 2
+else
+  echo "prepbufr_decode_csv.x completed successfully"
+fi 
 
-  echo
-  echo "Running prepbufr_decode_csv (${i})..."
-  ./prepbufr_decode_csv.x > prepbufr_decode_${i}.log
-  err=$?
-  if [ ${err} -ne 0 ]; then
-    echo "error ${err} when running prepbufr_decode_csv.x (${i})"
-    exit 2
-  else
-    echo "prepbufr_decode_csv.x completed successfully (${i})"
-  fi 
+# Run prepbufr_encode_csv
+mv prepbufr prepbufr.ORIGINAL
+python open_close_csv.py prepbufr.csv
+echo
+echo "Running prepbufr_encode_csv..."
+./prepbufr_encode_csv.x > prepbufr_encode_1.log
+err=$?
+if [ ${err} -ne 0 ]; then
+  echo "error ${err} when running prepbufr_encode_csv.x"
+  exit 3
+else
+  echo "prepbufr_encode_csv.x completed successfully"
+fi 
 
-  cp prepbufr prepbufr${suffix[i]}
-  python open_close_csv.py prepbufr.csv
-  echo
-  echo "Running prepbufr_encode_csv (${i})..."
-  ./prepbufr_encode_csv.x > prepbufr_encode_${i}.log
-  err=$?
-  if [ ${err} -ne 0 ]; then
-    echo "error ${err} when running prepbufr_encode_csv.x (${i})"
-    exit 3
-  else
-    echo "prepbufr_encode_csv.x completed successfully (${i})"
-  fi 
-  cp prepbufr.csv prepbufr.csv${suffix[i]}
-  
-done
+# Run prepbufr_decode_csv (second time)
+mv prepbufr.csv prepbufr.csv.ORIGINAL
+echo
+echo "Running prepbufr_decode_csv (second time)..."
+./prepbufr_decode_csv.x > prepbufr_decode_2.log
+err=$?
+if [ ${err} -ne 0 ]; then
+  echo "error ${err} when running prepbufr_decode_csv.x (second time)"
+  exit 4
+else
+  echo "prepbufr_decode_csv.x completed successfully (second time)"
+fi 
+
+# Run prepbufr_encode_csv (second time)
+mv prepbufr prepbufr.INTERMEDIATE
+python open_close_csv.py prepbufr.csv
+echo
+echo "Running prepbufr_encode_csv (second time)..."
+./prepbufr_encode_csv.x > prepbufr_encode_2.log
+err=$?
+if [ ${err} -ne 0 ]; then
+  echo "error ${err} when running prepbufr_encode_csv.x (second time)"
+  exit 5
+else
+  echo "prepbufr_encode_csv.x completed successfully (second time)"
+fi 
+
+# Run prepbufr_decode_csv (third time)
+mv prepbufr.csv prepbufr.csv.INTERMEDIATE
+echo
+echo "Running prepbufr_decode_csv (third time)..."
+./prepbufr_decode_csv.x > prepbufr_decode_3.log
+err=$?
+if [ ${err} -ne 0 ]; then
+  echo "error ${err} when running prepbufr_decode_csv.x (third time)"
+  exit 6
+else
+  echo "prepbufr_decode_csv.x completed successfully (third time)"
+fi
 
 # Compare prepbufr.csv files
 # This test checks whether the any data is changed during the prepbufr_decode/prepbufr_encode 
@@ -111,7 +146,7 @@ fi
 # might not be the best truth dataset. IODA output from JEDI should be used in the future.
 python check_bufr_csv.py prepbufr.csv ../data/diag_conv_%s_ges.2023121312.nc4 > check_bufr_csv.log
 err=$?
-if [ err -ne 0 ]; then
+if [ ${err} -ne 0 ]; then
   echo "error ${err} when running check_bufr_csv.py. Check check_bufr_csv.log for details"
   exit 5
 else
