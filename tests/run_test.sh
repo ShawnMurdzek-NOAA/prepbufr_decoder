@@ -10,8 +10,8 @@
 # User-specified options
 ################################################################################
 
-# Machine (can only those machines supported by prepbufr_decoder)
-machine='JET'
+# Machine (can only use those machines supported by prepbufr_decoder)
+machine='ORION'
 
 # Inputs
 bufr_in='./data/2023121312.rap_e.t12z.prepbufr.tm00'
@@ -41,8 +41,10 @@ fi
 source ${envDIR}/bufr_${machine,,}.env
 case ${machine} in
 "ORION")
-  echo "Python testing environment not yet configured. Exiting..."
-  exit 1
+  module use -a /apps/contrib/miniconda3-noaa-gsl/modulefiles
+  module load miniconda3
+  conda activate /work2/noaa/wrfruc/murdzek/conda/my_py
+  export PYTHONPATH=$PYTHONPATH:/work2/noaa/wrfruc/murdzek/src/
 ;;
 "JET")
   module use -a /contrib/miniconda3/modulefiles
