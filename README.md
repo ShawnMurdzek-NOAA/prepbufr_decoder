@@ -21,6 +21,17 @@ The following machines are currently supported:
 
 To add a new machine, add an environment configuration file to the `env` directory and add the machine and environment configuration file combination to the case block in build.sh.
 
+## Testing
+
+To test, run the following:
+
+```
+cd tests/
+bash run_test.sh
+```
+
+See comments in `run_test.sh` for test details.
+
 ## History
 
 This project is based on scripts found within [GSI-utils](https://github.com/NOAA-EMC/GSI-utils).
