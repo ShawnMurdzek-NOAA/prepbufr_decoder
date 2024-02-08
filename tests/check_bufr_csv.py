@@ -23,11 +23,11 @@ import pyDA_utils.bufr as bufr
 # Input Parameters
 #---------------------------------------------------------------------------------------------------
 
-#csv_fname = sys.argv[1]
-#diag_fmt = sys.argv[2]
+csv_fname = sys.argv[1]
+diag_fmt = sys.argv[2]
 
-csv_fname = '/lfs4/BMC/wrfruc/murdzek/src/prepbufr_decoder/tests/tmp/prepbufr.csv'
-diag_fmt = '/lfs4/BMC/wrfruc/murdzek/src/prepbufr_decoder/tests/data/diag_conv_%s_ges.2023121312.nc4'
+#csv_fname = '/lfs4/BMC/wrfruc/murdzek/src/prepbufr_decoder/tests/tmp/prepbufr.csv'
+#diag_fmt = '/lfs4/BMC/wrfruc/murdzek/src/prepbufr_decoder/tests/data/diag_conv_%s_ges.2023121312.nc4'
 
 
 #---------------------------------------------------------------------------------------------------

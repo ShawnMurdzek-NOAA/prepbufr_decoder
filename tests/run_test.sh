@@ -10,11 +10,12 @@
 # User-specified options
 ################################################################################
 
-# Machine (can only those machines supported by prepbufr_decoder)
-machine='JET'
+# Machine (can only use those machines supported by prepbufr_decoder)
+machine='ORION'
 
 # Inputs
 bufr_in='./data/2023121312.rap_e.t12z.prepbufr.tm00'
+bufr_truth='./data/2023121312.rap_e.t12z.prepbufr.tm00.OUTPUT.TRUTH'  # Created using hash 48728b3
 diag_fmt='./data/diag_conv_%s_ges.2023121312.nc4'
 
 # Location of bin directory
@@ -22,7 +23,7 @@ binDIR="`pwd`/../bin"
 envDIR="`pwd`/../env"
 
 # Option to delete temporary test directory after testing
-clean=0
+clean=1
 
 ################################################################################
 # Run Test
@@ -41,8 +42,10 @@ fi
 source ${envDIR}/bufr_${machine,,}.env
 case ${machine} in
 "ORION")
-  echo "Python testing environment not yet configured. Exiting..."
-  exit 1
+  module use -a /apps/contrib/miniconda3-noaa-gsl/modulefiles
+  module load miniconda3
+  conda activate /work2/noaa/wrfruc/murdzek/conda/my_py
+  export PYTHONPATH=$PYTHONPATH:/work2/noaa/wrfruc/murdzek/src/
 ;;
 "JET")
   module use -a /contrib/miniconda3/modulefiles
@@ -59,6 +62,7 @@ else
 fi
 cp ${binDIR}/* ./tmp/
 cp ${bufr_in} ./tmp/prepbufr
+cp ${bufr_truth} ./tmp/prepbufr.TRUTH
 cp *.py ./tmp/
 cd tmp
 
@@ -83,7 +87,7 @@ echo "Running prepbufr_encode_csv..."
 err=$?
 if [ ${err} -ne 0 ]; then
   echo "error ${err} when running prepbufr_encode_csv.x"
-  exit 3
+  exit 2
 else
   echo "prepbufr_encode_csv.x completed successfully"
 fi 
@@ -96,7 +100,7 @@ echo "Running prepbufr_decode_csv (second time)..."
 err=$?
 if [ ${err} -ne 0 ]; then
   echo "error ${err} when running prepbufr_decode_csv.x (second time)"
-  exit 4
+  exit 2
 else
   echo "prepbufr_decode_csv.x completed successfully (second time)"
 fi 
@@ -110,7 +114,7 @@ echo "Running prepbufr_encode_csv (second time)..."
 err=$?
 if [ ${err} -ne 0 ]; then
   echo "error ${err} when running prepbufr_encode_csv.x (second time)"
-  exit 5
+  exit 2
 else
   echo "prepbufr_encode_csv.x completed successfully (second time)"
 fi 
@@ -123,7 +127,7 @@ echo "Running prepbufr_decode_csv (third time)..."
 err=$?
 if [ ${err} -ne 0 ]; then
   echo "error ${err} when running prepbufr_decode_csv.x (third time)"
-  exit 6
+  exit 2
 else
   echo "prepbufr_decode_csv.x completed successfully (third time)"
 fi
@@ -136,10 +140,22 @@ python open_close_csv.py prepbufr.csv
 diff_lines=`diff prepbufr.csv prepbufr.csv.INTERMEDIATE | wc -l`
 if [ ${diff_lines} -ne 0 ]; then
   echo "error: ${diff_lines} lines differ between prepbufr.csv and prepbufr.csv.INTERMEDIATE"
-  exit 4
+  exit 3
 else
   echo "prepbufr CSV files are the same!"
 fi
+
+# Compare prepbufr files
+# This test compares prepbufr output from prepbufr_encode_csv to a "truth" prepbufr file.
+# This test checks whether the prepbufr files are identical, so it may fail if there are small
+# differences. Thus, failing this test does not return an error.
+diff_lines=`diff  prepbufr.INTERMEDIATE prepbufr.TRUTH | wc -l`
+if [ ${diff_lines} -ne 0 ]; then
+  echo "error: prepbufr.INTERMEDIATE and prepbufr.TRUTH are not identical"
+else
+  echo "prepbufr files are the same!"
+fi
+
 
 # Compare prepbufr.csv to GSI diag output
 # This test checks whether prepbufr_decode_csv is working properly. Note that the GSI diag files
@@ -148,7 +164,7 @@ python check_bufr_csv.py prepbufr.csv ../data/diag_conv_%s_ges.2023121312.nc4 > 
 err=$?
 if [ ${err} -ne 0 ]; then
   echo "error ${err} when running check_bufr_csv.py. Check check_bufr_csv.log for details"
-  exit 5
+  exit 3
 else
   echo "No large differences detected between the prepbufr CSV and GSI diag files!"
 fi
