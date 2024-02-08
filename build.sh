@@ -24,6 +24,8 @@ case ${machine} in
   echo
 esac
 
+module list
+
 # Build programs
 names=(prepbufr_decode_csv prepbufr_encode_csv)
 error=0
