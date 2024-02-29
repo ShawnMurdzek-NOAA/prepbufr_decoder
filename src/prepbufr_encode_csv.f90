@@ -84,11 +84,11 @@ program prepbufr_encode_csv
    read(unit_in,*,end=100) tmsg,subset,idate,tntb,c_sid,(temp1(i),i=1,58), &
                            c_prvstg,c_sprvstg,(temp2(j),i=1,8)
 
-   if (nmsg /= tmsg) then
-     write(*,*)
-   endif
+   !if (nmsg /= tmsg) then
+   !  write(*,*)
+   !endif
 
-   write(*,*) tmsg,tntb,c_sid,' ',subset
+   !write(*,*) tmsg,tntb,c_sid,' ',subset
        
    if (nmsg /= tmsg) then
      ! Close old message
