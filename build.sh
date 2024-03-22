@@ -3,7 +3,7 @@
 # Script to build the PrepBUFR decoder and encoder
 
 # Passed arguments: 
-#     1 - Machine (options = ORION, JET)
+#     1 - Machine (options = ORION, JET, HERCULES)
 
 machine=$1
 echo "machine: ${machine}"
@@ -14,6 +14,10 @@ case ${machine} in
 "ORION")
   source ./env/bufr_orion.env
   bufr_lib=bufr_d   # bufr from hpc-stack
+;;
+"HERCULES")
+  source ./env/bufr_hercules.env
+  bufr_lib=bufr_4   # bufr from spack-stack
 ;;
 "JET")
   source ./env/bufr_jet.env
