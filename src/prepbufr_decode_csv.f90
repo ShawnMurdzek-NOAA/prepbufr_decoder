@@ -12,7 +12,7 @@ program prepbufr_decode_csv
  integer, parameter :: mxmn=65, mxlv=250
  integer, parameter :: nhd=8, nob=13, nqc=8, noe=7, ndrift=3, nsst=5, nfc=3, ncld=3, &
                        ngoescld=4, nmaxmin=2, naircft=2, nprwe=1, nprv=1,nsprv=1,    &
-                       nhowv=1, nceil=1, nqifn=1, nhblcs=1, ntsb=1, nacid=1
+                       nhowv=1, nceil=1, nqifn=1, nhblcs=1, ntsb=1, nacid=1, nrsrd=1
 
 ! Define fields to be read from prepbufr file
 ! Some combinations of fields result in the following error. If that is the
@@ -38,14 +38,16 @@ program prepbufr_decode_csv
  character(8), dimension(nhblcs)   :: hblcsa=(/ 'HBLCS' /)
  character(8), dimension(ntsb)     :: tsba=(/ 'TSB' /)
  character(8), dimension(nacid)    :: acida=(/ 'ACID' /)
+ character(8), dimension(nrsrd)    :: rsrda=(/ 'RSRD' /)
 
  character(80) :: hdstr,obstr,qcstr,oestr,driftstr,sststr,fcstr,cldstr,goescldstr,maxminstr,       &
-                  aircftstr,prwestr,prvstr,sprvstr,howvstr,ceilstr,qifnstr,hblcsstr,tsbstr,acidstr
+                  aircftstr,prwestr,prvstr,sprvstr,howvstr,ceilstr,qifnstr,hblcsstr,tsbstr,acidstr,&
+                  rsrdstr
 
  real(8) :: hdr(mxmn),obs(mxmn,mxlv),qcf(mxmn,mxlv),oer(mxmn,mxlv),drift(mxmn,mxlv),sst(mxmn,mxlv), &
             fc(mxmn,mxlv),cld(mxmn,mxlv),goescld(mxmn,mxlv),maxmin(mxmn,mxlv),aircft(mxmn,mxlv),    &
             prwe(mxmn,mxlv),prv(mxmn,mxlv),sprv(mxmn,mxlv),howv(mxmn,mxlv),ceil(mxmn,mxlv),         &
-            qifn(mxmn,mxlv),hblcs(mxmn,mxlv),tsb(mxmn,mxlv),acid(mxmn,mxlv) 
+            qifn(mxmn,mxlv),hblcs(mxmn,mxlv),tsb(mxmn,mxlv),acid(mxmn,mxlv),rsrd(mxmn,mxlv) 
 
  real :: bmiss=1.0e9
  real(8) :: tpc(mxlv,100)
@@ -89,6 +91,7 @@ program prepbufr_decode_csv
  write(hblcsstr,'(*(a," "))') hblcsa
  write(tsbstr,'(*(a," "))') tsba
  write(acidstr,'(*(a," "))') acida
+ write(rsrdstr,'(*(a," "))') rsrda
 
 ! Open files
  open(24,file='prepbufr.table')
@@ -107,8 +110,8 @@ program prepbufr_decode_csv
                              (trim(prva(i)),i=1,nprv),(trim(sprva(i)),i=1,nsprv),        &
                              (trim(howva(i)),i=1,nhowv),(trim(ceila(i)),i=1,nceil),      &
                              (trim(qifna(i)),i=1,nqifn),(trim(hblcsa(i)),i=1,nhblcs),    &
-                             (trim(tsba(i)),i=1,ntsb),(trim(acida(i)),i=1,nacid),'tvflg',&
-                             'vtcd'
+                             (trim(tsba(i)),i=1,ntsb),(trim(acida(i)),i=1,nacid),        &
+                             (trim(rsrda(i)),i=1,nrsrd),'tvflg','vtcd'
 
  call openbf(unit_in,'IN',unit_in)
  call dxdump(unit_in,24)
@@ -157,6 +160,7 @@ program prepbufr_decode_csv
      call ufbint(unit_in,hblcs,mxmn,mxlv,iret(18),hblcsstr)
      call ufbint(unit_in,tsb,mxmn,mxlv,iret(19),tsbstr)
      call ufbint(unit_in,acid,mxmn,mxlv,iret(20),acidstr)
+     call ufbint(unit_in,rsrd,mxmn,mxlv,iret(21),rsrdstr)
 
      rstation_id=hdr(1)
      iret_max = maxval(iret)
@@ -173,7 +177,8 @@ program prepbufr_decode_csv
                                       trim(c_prvstg),trim(c_sprvstg),                           &
                                       (howv(i,k),i=1,nhowv),(ceil(i,k),i=1,nceil),              &
                                       (qifn(i,k),i=1,nqifn),(hblcs(i,k),i=1,nhblcs),            &
-                                      (tsb(i,k),i=1,ntsb),(acid(i,k),i=1,nacid),tvflg(k),vtcd
+                                      (tsb(i,k),i=1,ntsb),(acid(i,k),i=1,nacid),                &
+                                      (rsrd(i,k),i=1,nrsrd),tvflg(k),vtcd
        else
          write(100, '(1x *(g0,","))') nmsg,trim(subset),idate,ntb,trim(c_sid),(hdr(i),i=2,nhd), &
                                       (obs(i,k),i=1,nob),(qcf(i,k),i=1,nqc),(oer(i,k),i=1,noe), &
