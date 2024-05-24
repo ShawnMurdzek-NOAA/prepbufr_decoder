@@ -23,7 +23,7 @@ To add a new machine, add an environment configuration file to the `env` directo
 
 ## Testing
 
-To test, run the following:
+Before testing, the test data must be downloaded and linked (e.g., `ln -snf`) into the `tests/data` directory. Test data can be found on the MSU machines at `/work2/noaa/wrfruc/murdzek/src/bufr_test_data/prepbufr_decoder`. To test, run the following:
 
 ```
 cd tests/

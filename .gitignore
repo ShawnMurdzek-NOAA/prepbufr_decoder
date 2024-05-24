@@ -8,5 +8,8 @@ slurm*
 # Temporary directories
 tests/tmp/
 
+# Test data
+tests/data/*
+
 # Machine binary directories
 machine_bin/
