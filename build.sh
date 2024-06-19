@@ -13,7 +13,7 @@ echo
 case ${machine} in
 "ORION")
   source ./env/bufr_orion.env
-  bufr_lib=bufr_d   # bufr from hpc-stack
+  bufr_lib=bufr_4   # bufr from spack-stack
 ;;
 "HERCULES")
   source ./env/bufr_hercules.env

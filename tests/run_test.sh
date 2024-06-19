@@ -11,7 +11,7 @@
 ################################################################################
 
 # Machine (can only use those machines supported by prepbufr_decoder)
-machine='HERCULES'
+machine='ORION'
 
 # Inputs
 bufr_in='./data/2023121312.rap_e.t12z.prepbufr.tm00'
@@ -42,14 +42,18 @@ fi
 source ${envDIR}/bufr_${machine,,}.env
 case ${machine} in
 "ORION")
-  module use -a /apps/contrib/miniconda3-noaa-gsl/modulefiles
-  module load miniconda3
-  conda activate /work2/noaa/wrfruc/murdzek/conda/my_py
+  module unload python
+  module use /work2/noaa/wrfruc/murdzek/conda/miniconda_orion/modulefiles
+  module load miniconda3/24.4.0
+  conda activate base
+  conda activate /work2/noaa/wrfruc/murdzek/conda/miniconda_orion/env/my_py
   export PYTHONPATH=$PYTHONPATH:/work2/noaa/wrfruc/murdzek/src/
 ;;
 "HERCULES")
-  module load miniconda3/4.10.3
-  source activate /work2/noaa/wrfruc/murdzek/conda/my_py_hercules
+  module use /work2/noaa/wrfruc/murdzek/conda/miniconda_hercules/modulefiles
+  module load miniconda3/24.1.2
+  conda activate base
+  conda activate /work2/noaa/wrfruc/murdzek/conda/miniconda_hercules/env/my_py
   export PYTHONPATH=$PYTHONPATH:/work2/noaa/wrfruc/murdzek/src/
 ;;
 "JET")
