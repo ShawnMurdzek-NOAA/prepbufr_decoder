@@ -38,30 +38,9 @@ else
   exit 1
 fi
 
-# Configure environment
-source ${envDIR}/bufr_${machine,,}.env
-case ${machine} in
-"ORION")
-  module unload python
-  module use /work2/noaa/wrfruc/murdzek/conda/miniconda_orion/modulefiles
-  module load miniconda3/24.4.0
-  conda activate base
-  conda activate /work2/noaa/wrfruc/murdzek/conda/miniconda_orion/env/my_py
-  export PYTHONPATH=$PYTHONPATH:/work2/noaa/wrfruc/murdzek/src/
-;;
-"HERCULES")
-  module use /work2/noaa/wrfruc/murdzek/conda/miniconda_hercules/modulefiles
-  module load miniconda3/24.1.2
-  conda activate base
-  conda activate /work2/noaa/wrfruc/murdzek/conda/miniconda_hercules/env/my_py
-  export PYTHONPATH=$PYTHONPATH:/work2/noaa/wrfruc/murdzek/src/
-;;
-"JET")
-  module use -a /contrib/miniconda3/modulefiles
-  module load miniconda3
-  conda activate adb_graphics
-  export PYTHONPATH=$PYTHONPATH:/mnt/lfs4/BMC/wrfruc/murdzek/src
-esac
+# BUFR and python environment files
+bufr_env=${envDIR}/bufr_${machine,,}.env
+py_env=${envDIR}/py_${machine,,}.env
 
 # Setup temporary testing directory
 if [ -d ./tmp ]; then
@@ -78,6 +57,7 @@ cd tmp
 # Run prepbufr_decode_csv
 echo
 echo "Running prepbufr_decode_csv..."
+source ${bufr_env}
 ./prepbufr_decode_csv.x > prepbufr_decode_1.log
 err=$?
 if [ ${err} -ne 0 ]; then
@@ -89,9 +69,11 @@ fi
 
 # Run prepbufr_encode_csv
 mv prepbufr prepbufr.ORIGINAL
+source ${py_env}
 python open_close_csv.py prepbufr.csv
 echo
 echo "Running prepbufr_encode_csv..."
+source ${bufr_env}
 ./prepbufr_encode_csv.x > prepbufr_encode_1.log
 err=$?
 if [ ${err} -ne 0 ]; then
@@ -105,6 +87,7 @@ fi
 mv prepbufr.csv prepbufr.csv.ORIGINAL
 echo
 echo "Running prepbufr_decode_csv (second time)..."
+source ${bufr_env}
 ./prepbufr_decode_csv.x > prepbufr_decode_2.log
 err=$?
 if [ ${err} -ne 0 ]; then
@@ -116,9 +99,11 @@ fi
 
 # Run prepbufr_encode_csv (second time)
 mv prepbufr prepbufr.INTERMEDIATE
+source ${py_env}
 python open_close_csv.py prepbufr.csv
 echo
 echo "Running prepbufr_encode_csv (second time)..."
+source ${bufr_env}
 ./prepbufr_encode_csv.x > prepbufr_encode_2.log
 err=$?
 if [ ${err} -ne 0 ]; then
@@ -132,6 +117,7 @@ fi
 mv prepbufr.csv prepbufr.csv.INTERMEDIATE
 echo
 echo "Running prepbufr_decode_csv (third time)..."
+source ${bufr_env}
 ./prepbufr_decode_csv.x > prepbufr_decode_3.log
 err=$?
 if [ ${err} -ne 0 ]; then
@@ -145,6 +131,7 @@ fi
 # This test checks whether the any data is changed during the prepbufr_decode/prepbufr_encode 
 # process. Success suggests that prepbufr_encode_csv is working properly. Another test is needed,
 # however, to check that prepbufr_decode_csv is working properly
+source ${py_env}
 python open_close_csv.py prepbufr.csv
 diff_lines=`diff prepbufr.csv prepbufr.csv.INTERMEDIATE | wc -l`
 if [ ${diff_lines} -ne 0 ]; then

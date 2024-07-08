@@ -1,7 +1,8 @@
 # PrepBUFR Decoder and Encoder
 
 Shawn Murdzek  
-NOAA/OAR/Global Systems Laboratory  
+CIRES CU Boulder  
+Embedded in NOAA/OAR/Global Systems Laboratory  
 shawn.s.murdzek@noaa.gov  
 
 ## Decription
@@ -16,10 +17,12 @@ Building the prepBUFR decoder and encoder requires the BUFR library. For support
 
 The following machines are currently supported:
 
-- ORION (hpc-stack v1.1.0)
+- HERCULES (spack-stack v1.5.1)
 - JET (spack-stack v1.5.0)
+- ORION (spack-stack v1.6.0)
 
-To add a new machine, add an environment configuration file to the `env` directory and add the machine and environment configuration file combination to the case block in build.sh.
+
+To add a new machine, add a BUFR environment configuration file and a python environment configuration file (optional, only needed to run the tests) to the `env` directory.
 
 ## Testing
 
