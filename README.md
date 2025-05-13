@@ -24,6 +24,20 @@ The following machines are currently supported:
 
 To add a new machine, add a BUFR environment configuration file and a python environment configuration file (optional, only needed to run the tests) to the `env` directory.
 
+## Running
+
+Decoder (goes from prepBUFR file to CSV):
+```
+cp <your prepBUFR file> ./bin/prepbufr
+./prepbufr_decode_csv.x
+```
+
+Encoder (goes from CSV to prepBUFR file):
+```
+cp <your CSV file> ./bin/prepbufr.csv
+./prepbufr_encode_csv.x
+```
+
 ## Testing
 
 Before testing, the test data must be downloaded and linked (e.g., `ln -snf`) into the `tests/data` directory. Test data can be found on the MSU machines at `/work2/noaa/wrfruc/murdzek/src/bufr_test_data/prepbufr_decoder`. To test, run the following:
