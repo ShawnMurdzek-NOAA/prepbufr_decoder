@@ -18,7 +18,7 @@ Building the prepBUFR decoder and encoder requires the BUFR library. For support
 The following machines are currently supported:
 
 - HERCULES (spack-stack v1.5.1)
-- JET (spack-stack v1.5.0)
+- JET (spack-stack v1.6.0)
 - ORION (spack-stack v1.6.0)
 
 
